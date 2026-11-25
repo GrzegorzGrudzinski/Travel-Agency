@@ -11,7 +11,9 @@ import i18n.Messages;
 import model.Trip;
 import filters.*;
 
-
+/**
+ * Main search panel with a text field, filters, and a list of results.
+ */
 public class SearchPanel extends JPanel {
     private final List<Trip> allTrips;    // all trips, never changes
     private final JTextField searchField = new JTextField(20);
@@ -19,16 +21,21 @@ public class SearchPanel extends JPanel {
     private final JPanel resultsPanel = new JPanel();    // list of TripCards
     private final FilterPanel filterPanel;
 
+    // Creates a new search panel with the given trips and a callback for the back button.
     public SearchPanel(List<Trip> trips, Runnable onBack) {
         this.allTrips = trips;
         setLayout(new BorderLayout());
-
+        
         // top bar: back button, search field, result count
         add(createTopBar(onBack), BorderLayout.NORTH);
 
         // results panel: vertical list of cards inside a scroll pane
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+        resultsPanel.setBackground(Theme.PAGE_BG);
+        resultsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));   // space around cards
+
         JScrollPane scroll = new JScrollPane(resultsPanel);
+        scroll.setBorder(null);                                // no extra frame around results
         scroll.getVerticalScrollBar().setUnitIncrement(16);   // faster mouse wheel scrolling
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         add(scroll, BorderLayout.CENTER);
@@ -36,6 +43,7 @@ public class SearchPanel extends JPanel {
         // create the filter panel on the left
         filterPanel = new FilterPanel(trips, this::refreshResults);
         JScrollPane filterScroll = new JScrollPane(filterPanel);
+        filterScroll.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Theme.CARD_BORDER));
         filterScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         filterScroll.getVerticalScrollBar().setUnitIncrement(16);
         add(filterScroll, BorderLayout.WEST);
@@ -50,11 +58,16 @@ public class SearchPanel extends JPanel {
         refreshResults();   // show all trips at start
     }
 
+    /** Creates the top bar with a back button, search field, and result count.*/
     private JPanel createTopBar(Runnable onBack) {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8)); // left-aligned, 10px h-gap, 8px v-gap
 
+        // back button: clears search and filters, then goes back to welcome screen
         JButton backButton = new JButton(Messages.get("search.back"));
-        backButton.addActionListener(e -> onBack.run());
+        backButton.addActionListener(e -> {
+            resetSearch(); // clear filters and search text before going back
+            onBack.run();
+        });
 
         bar.add(backButton);
         bar.add(new JLabel(Messages.get("search.label")));
@@ -63,6 +76,7 @@ public class SearchPanel extends JPanel {
         return bar;
     }
 
+    /** Updates the results panel to show only trips that match the current search text and filters.*/
     private void refreshResults() {
         TripFilter filter = filterPanel.buildFilter(searchField.getText());
         List<Trip> results = allTrips.stream()
@@ -82,5 +96,12 @@ public class SearchPanel extends JPanel {
 
         resultsPanel.revalidate();
         resultsPanel.repaint();
+    }
+
+    /** Clears the text field and all filters, then shows every trip again. */
+    private void resetSearch() {
+        filterPanel.reset();
+        searchField.setText("");
+        refreshResults();
     }
 }

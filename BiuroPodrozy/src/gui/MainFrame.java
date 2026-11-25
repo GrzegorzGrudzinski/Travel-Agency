@@ -11,8 +11,8 @@ import java.awt.*;
  * Main application window with a card layout that switches between the screen panels.
  */
 public class MainFrame extends JFrame {
-    private static final int WINDOW_WIDTH = 960;
-    private static final int WINDOW_HEIGHT = 540;
+    private static final int WINDOW_WIDTH = 1280;
+    private static final int WINDOW_HEIGHT = 720;
     
     // 
     private static final String SEARCH = "search";
@@ -31,6 +31,8 @@ public class MainFrame extends JFrame {
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        setMinimumSize(new Dimension(800, 500));   // below this the filter column and cards overlap
+        setLocationRelativeTo(null);                // centre the window on screen
     }
     private void showCard(String name) {
         cardLayout.show(cards, name);

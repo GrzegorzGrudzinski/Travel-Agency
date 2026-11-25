@@ -16,11 +16,13 @@ import model.Trip;
  */
 public class TripCard extends JPanel {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final int FEW_PLACES = 5;
 
     public TripCard(Trip trip) {
         setLayout(new BorderLayout(10, 0));     // 10 px gap between columns
+        setBackground(Theme.CARD_BG);
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),   // outer frame
+                BorderFactory.createLineBorder(Theme.CARD_BORDER),   // outer frame
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));    // inner padding
 
         add(createInfoPanel(trip), BorderLayout.CENTER);
@@ -33,11 +35,10 @@ public class TripCard extends JPanel {
     private JPanel createInfoPanel(Trip trip) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        setBackground(Color.WHITE);
         panel.setOpaque(false);   // let the white card background show through
 
         JLabel name = new JLabel(trip.getName());
-        name.setFont(new Font("SansSerif", Font.BOLD, 18));
+        name.setFont(Theme.CARD_TITLE);
 
         JLabel dates = new JLabel(trip.getDestination() + " · " + Messages.format("card.dates",
                 trip.getStartDate().format(DATE), trip.getEndDate().format(DATE), trip.getDays()));
@@ -48,7 +49,7 @@ public class TripCard extends JPanel {
                 .map(Amenity::toString)              // each enum -> translated name
                 .collect(Collectors.joining(", "));  // "Basen, Plaża, Wi-Fi"
         JLabel amenities = new JLabel(amenityText);
-        amenities.setForeground(Color.GRAY);
+        amenities.setForeground(Theme.TEXT_MUTED);
 
         panel.add(name);
         panel.add(Box.createVerticalStrut(4));
@@ -64,18 +65,23 @@ public class TripCard extends JPanel {
         panel.setOpaque(false);
 
         JLabel price = new JLabel(Messages.format("card.price", trip.getPrice()));
-        price.setFont(new Font("SansSerif", Font.BOLD, 20));
-        price.setForeground(new Color(0, 120, 180));
+        price.setFont(Theme.PRICE);
+        price.setForeground(Theme.PRIMARY);
         price.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         int full = (int) Math.round(trip.getRating());
         JLabel rating = new JLabel("★".repeat(full) + "☆".repeat(5 - full) + " " + trip.getRating());
-        rating.setForeground(new Color(230, 160, 0));
+        rating.setForeground(Theme.ACCENT);
         rating.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         JLabel places = new JLabel(Messages.format("card.places", trip.getFreePlaces()));
         places.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        if (trip.getFreePlaces() <= FEW_PLACES) {                     // highlight almost sold-out trips
+            places.setForeground(Theme.WARNING);
+            places.setFont(places.getFont().deriveFont(Font.BOLD));
+        }
 
+        
         panel.add(price);
         panel.add(rating);
         panel.add(places);

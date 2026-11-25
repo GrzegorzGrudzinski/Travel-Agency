@@ -25,17 +25,17 @@ public class WelcomePanel extends JPanel {
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
         JLabel title = new JLabel(Messages.get("welcome.title"));
-        title.setFont(new Font("SansSerif", Font.BOLD, 48));
+        title.setFont(Theme.HERO);
         title.setForeground(Color.WHITE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subtitle = new JLabel(Messages.get("welcome.subtitle"));
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        subtitle.setFont(Theme.SUBTITLE);
         subtitle.setForeground(Color.WHITE);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton startButton = new JButton(Messages.get("welcome.searchButton"));
-        startButton.setFont(new Font("SansSerif", Font.BOLD, 20));
+        startButton.setFont(Theme.BIG_BUTTON);
         startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         startButton.addActionListener(e -> onStart.run());
 
@@ -48,6 +48,7 @@ public class WelcomePanel extends JPanel {
         add(content);
     }
     
+    // Loads an image from the resources folder. Returns null if the image could not be loaded.
     private static BufferedImage loadImage(String path) {
         URL url = WelcomePanel.class.getResource(path); 
         if (url == null) {
@@ -67,11 +68,11 @@ public class WelcomePanel extends JPanel {
         super.paintComponent(g);   // clears the panel first
         if (background != null) {
             g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
-            g.setColor(new Color(0, 0, 0, 90));        // darkens the image slightly
+            g.setColor(Theme.OVERLAY);        // darkens the image slightly
             g.fillRect(0, 0, getWidth(), getHeight());
         } else {
             // fallback when there is no image: plain colour background
-            g.setColor(new Color(0, 120, 180));
+            g.setColor(Theme.PRIMARY);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
