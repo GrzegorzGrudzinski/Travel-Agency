@@ -1,6 +1,9 @@
 package gui;
 
 import javax.swing.*;
+
+import i18n.Messages;
+
 import java.awt.*;
 
 public class MainFrame extends JFrame {
@@ -15,9 +18,9 @@ public class MainFrame extends JFrame {
     private final JPanel cards = new JPanel(cardLayout);
     
     public MainFrame() {
-        setTitle("Biuro Podróży");
-        cards.add(createCard("Ekran powitalny", "Szukaj wycieczki", SEARCH), WELCOME);
-        cards.add(createCard("Wyszukiwarka",    "Powrót",           WELCOME),SEARCH);
+        setTitle(Messages.get("app.title"));
+        cards.add(createCard(Messages.get("welcome.title"), Messages.get("welcome.searchButton"), SEARCH), WELCOME);
+        cards.add(createCard(Messages.get("search.title"),  Messages.get("search.back"),         WELCOME), SEARCH);
         cardLayout.show(cards, WELCOME);
         
         setContentPane(cards);
