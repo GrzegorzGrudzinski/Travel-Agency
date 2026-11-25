@@ -1,13 +1,9 @@
 package i18n;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-/*
-
-
-*/
 
 public final class Messages {
     // 1. load translation files
@@ -23,8 +19,6 @@ public final class Messages {
         }
     }
 
-    
-
     // 2. get the translation
     private Messages() {} //
 
@@ -38,5 +32,10 @@ public final class Messages {
         catch (MissingResourceException e) {
             return "!" + key + "!"; // missing value
         }
+    }
+
+    /** Returns the translation with {0}, {1}... replaced by the given values. */
+    public static String format(String key, Object... args) {
+        return MessageFormat.format(get(key), args);
     }
 }

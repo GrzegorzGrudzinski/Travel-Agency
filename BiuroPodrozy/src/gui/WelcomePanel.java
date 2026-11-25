@@ -1,7 +1,78 @@
 package gui;
 
-import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
+import i18n.Messages;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+
+/**
+ * Welcome screen with a background image and a button that opens the search panel.
+ */
 public class WelcomePanel extends JPanel {
+    private final BufferedImage background; // null if the image could not be loaded
+    public WelcomePanel(Runnable onStart) {
+        background = loadImage("/img/welcome.jpg");
+        
+        setLayout(new GridBagLayout());   // centred both ways
+
+        JPanel content = new JPanel();
+        content.setOpaque(false);         // transparent, so the background image shows through
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+
+        JLabel title = new JLabel(Messages.get("welcome.title"));
+        title.setFont(new Font("SansSerif", Font.BOLD, 48));
+        title.setForeground(Color.WHITE);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel(Messages.get("welcome.subtitle"));
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        subtitle.setForeground(Color.WHITE);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton startButton = new JButton(Messages.get("welcome.searchButton"));
+        startButton.setFont(new Font("SansSerif", Font.BOLD, 20));
+        startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startButton.addActionListener(e -> onStart.run());
+
+        content.add(title);
+        content.add(Box.createVerticalStrut(10));   // 10 px gap
+        content.add(subtitle);
+        content.add(Box.createVerticalStrut(30));
+        content.add(startButton);
+
+        add(content);
+    }
     
+    private static BufferedImage loadImage(String path) {
+        URL url = WelcomePanel.class.getResource(path); 
+        if (url == null) {
+            System.err.println("Image not found: " + path);
+            return null;
+        }
+        try {
+            return ImageIO.read(url);
+        } catch (IOException e) {
+            System.err.println("Cannot read image: " + path + " (" + e.getMessage() + ")");
+            return null;
+        }
+    }
+
+    @Override 
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);   // clears the panel first
+        if (background != null) {
+            g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+            g.setColor(new Color(0, 0, 0, 90));        // darkens the image slightly
+            g.fillRect(0, 0, getWidth(), getHeight());
+        } else {
+            // fallback when there is no image: plain colour background
+            g.setColor(new Color(0, 120, 180));
+            g.fillRect(0, 0, getWidth(), getHeight());
+        }
+    }
 }

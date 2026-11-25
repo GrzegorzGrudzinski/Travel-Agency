@@ -3,9 +3,13 @@ package gui;
 import javax.swing.*;
 
 import i18n.Messages;
+import model.Trip;
 
 import java.awt.*;
 
+/**
+ * Main application window with a card layout that switches between the screen panels.
+ */
 public class MainFrame extends JFrame {
     private static final int WINDOW_WIDTH = 960;
     private static final int WINDOW_HEIGHT = 540;
@@ -19,8 +23,8 @@ public class MainFrame extends JFrame {
     
     public MainFrame() {
         setTitle(Messages.get("app.title"));
-        cards.add(createCard(Messages.get("welcome.title"), Messages.get("welcome.searchButton"), SEARCH), WELCOME);
-        cards.add(createCard(Messages.get("search.title"),  Messages.get("search.back"),         WELCOME), SEARCH);
+        cards.add(new WelcomePanel(() -> showCard(SEARCH)), WELCOME);
+        cards.add(new SearchPanel(Trip.sampleTrips(), () -> showCard(WELCOME)), SEARCH);
         cardLayout.show(cards, WELCOME);
         
         setContentPane(cards);
@@ -31,6 +35,8 @@ public class MainFrame extends JFrame {
     private void showCard(String name) {
         cardLayout.show(cards, name);
     }
+    
+    /*
     private JPanel createCard(String title, String buttonText, String target) {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -46,4 +52,5 @@ public class MainFrame extends JFrame {
 
         return panel;
     }
+    */
 }
