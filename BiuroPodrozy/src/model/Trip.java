@@ -7,15 +7,15 @@ import java.util.List;
  * Represents a trip offered by the travel agency.
  */
 public class Trip {
-    private final String name;             // 
-    private final String destination;      // 
-    private final double price;            // 
-    private final LocalDate startDate;     // 
-    private final int days;                // 
-    private final List<Amenity> amenities; // 
-    private final double rating;           // 
-    private final Transport transport;     // 
-    private final Board board;             // 
+    private final String name;             // hotel / trip name, matched by the search field
+    private final String destination;      // destination country
+    private final double price;            // price per person in PLN
+    private final LocalDate startDate;     // first day of the trip
+    private final int days;                // length of stay
+    private final List<Amenity> amenities; // hotel amenities
+    private final double rating;           // rating 0-5
+    private final Transport transport;     // how to get there
+    private final Board board;             // meal plan
 
     public Trip(String name, String destination, double price, LocalDate startDate, int days, List<Amenity> amenities, double rating, Transport transport, Board board) {
         if (price < 0) {
