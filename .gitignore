@@ -1,1 +1,6 @@
 wymagania.md
+*.class
+bin/
+out/
+build/
+.vscode/

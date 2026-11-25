@@ -1,8 +1,11 @@
-import gui.MainWindow;
+import javax.swing.SwingUtilities;
+
+import gui.MainFrame;
 
 public class TravelAgency {
     public static void main(String[] args) {
-        MainWindow window = new MainWindow();
-        window.createAndShowGUI();
+        SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
     }
+
 }
+ 
