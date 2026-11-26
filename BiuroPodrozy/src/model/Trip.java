@@ -31,6 +31,9 @@ public class Trip {
         if (freePlaces < 0) {
             throw new IllegalArgumentException("Number of free places cannot be negative: " + freePlaces);
         }
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be blank");
+        }
         
         this.name = name;
         this.destination = destination;

@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,8 @@ public class TripRepository {
     private static final String HEADER =
             "# name;destination;price;startDate;days;amenities;rating;transport;board;freePlaces";
 
+    /** Trips that were read correctly plus errors for the lines that were skipped. */
+    public record LoadResult(List<Trip> trips, List<TripParseException> errors) {}
     private final Path file;   // where the data lives
 
     public TripRepository(Path file) {
@@ -29,39 +32,50 @@ public class TripRepository {
     }
 
     /** Reads all trips; skips empty lines and lines starting with '#'. */
-    public List<Trip> load() throws IOException {
+public LoadResult load() throws IOException {
         List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
         List<Trip> trips = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i++) {      // index loop: line numbers needed in stage 7
+        List<TripParseException> errors = new ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i).strip();
             if (line.isEmpty() || line.startsWith("#")) {
-                continue;                              // blank line or comment
+                continue;
             }
-            trips.add(parseLine(line));
+            try {
+                trips.add(parseLine(line, i + 1));   // i + 1: people count lines from 1
+            } catch (TripParseException e) {
+                errors.add(e);                       // skip only this line, keep going
+            }
         }
-        return trips;
+        return new LoadResult(trips, errors);
     }
 
+
     /** Parses a single line into a Trip object.*/
-    private static Trip parseLine(String line) {
-        String[] f = line.split(SEPARATOR, -1);   // -1: keep empty fields (e.g. no amenities)
-        if (f.length != FIELD_COUNT) {
-            throw new IllegalArgumentException("Expected " + FIELD_COUNT + " fields, got " + f.length);
+    private static Trip parseLine(String line, int lineNumber) throws TripParseException {
+        try {
+            String[] f = line.split(SEPARATOR, -1);   // -1: keep empty fields (e.g. no amenities)
+            if (f.length != FIELD_COUNT) {
+                throw new IllegalArgumentException("Expected " + FIELD_COUNT + " fields, got " + f.length);
+            }
+            for (int i = 0; i < f.length; i++) {
+                f[i] = f[i].strip();                  // tolerate spaces around ';'
+            }
+            return new Trip(
+                    f[0],                             // name
+                    f[1],                             // destination
+                    Double.parseDouble(f[2]),         // price
+                    LocalDate.parse(f[3]),            // start date, ISO yyyy-MM-dd
+                    Integer.parseInt(f[4]),           // days
+                    parseAmenities(f[5]),
+                    Double.parseDouble(f[6]),         // rating
+                    Transport.valueOf(f[7]),
+                    Board.valueOf(f[8]),
+                    Integer.parseInt(f[9]));          // free places  
+        } 
+        catch (IllegalArgumentException | DateTimeParseException e) {
+            throw new TripParseException(lineNumber, e.getMessage(), e);
         }
-        for (int i = 0; i < f.length; i++) {
-            f[i] = f[i].strip();                  // tolerate spaces around ';'
-        }
-        return new Trip(
-                f[0],                             // name
-                f[1],                             // destination
-                Double.parseDouble(f[2]),         // price
-                LocalDate.parse(f[3]),            // start date, ISO yyyy-MM-dd
-                Integer.parseInt(f[4]),           // days
-                parseAmenities(f[5]),
-                Double.parseDouble(f[6]),         // rating
-                Transport.valueOf(f[7]),
-                Board.valueOf(f[8]),
-                Integer.parseInt(f[9]));          // free places
     }
 
     /** Parses a list of amenities. */
@@ -76,7 +90,9 @@ public class TripRepository {
         return amenities;
     }
 
-    /** Overwrites the file with the given trips (used after reservations in stage 8). */
+    /** Overwrites the file with the given trips 
+     * currently not used
+     */
     public void save(List<Trip> trips) throws IOException {
         List<String> lines = new ArrayList<>();
         lines.add(HEADER);

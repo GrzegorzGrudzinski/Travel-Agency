@@ -107,6 +107,7 @@ public class FilterPanel extends JPanel {
         add(c);
     }
 
+    /**Updates the price label based on the current slider value.*/
     private void updatePriceLabel() {
         priceLabel.setText(Messages.format("filter.maxPrice", priceSlider.getValue()));
     }
